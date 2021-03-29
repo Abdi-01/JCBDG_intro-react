@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom'
-
+import { connect } from 'react-redux'
 class Navbar extends React.Component {
     constructor(props) {
         super(props);
@@ -22,9 +22,21 @@ class Navbar extends React.Component {
                         <a className="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
                     </div>
                 </div>
+                <div>
+                    <h3 className="text-white m-1">Welcome, 
+                    {this.props.username}</h3>
+                </div>
             </nav>
         );
     }
 }
 
-export default Navbar;
+// fungsi untuk mengambil data dari reducer/store
+const mapStateToProps = (state) => {
+    return {
+        username: state.authReducer.username,
+        role : state.authReducer.role
+    }
+}
+
+export default connect(mapStateToProps)(Navbar);

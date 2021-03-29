@@ -2,6 +2,8 @@ import axios from 'axios';
 import React from 'react';
 import { URL_API } from '../helper';
 import { Redirect } from 'react-router-dom'
+import { authLogin } from '../actions'
+import { connect } from 'react-redux'
 
 class LoginPage extends React.Component {
     constructor(props) {
@@ -13,17 +15,19 @@ class LoginPage extends React.Component {
     }
 
     onBtLogin = () => {
-        this.inUsername.value = ''
-        this.inPass.value = ''
         axios.get(URL_API + `/tb_user?username=${this.inUsername.value}&password=${this.inPass.value}`)
             .then(res => {
                 if (res.data.length > 0) {
+                    // menjalankan fungsi action
+                    this.props.authLogin(res.data[0])
                     this.setState({ redirect: true })
                     console.log('Login Success ✔')
                 } else {
                     this.setState({ alertShow: 'block' })
                     setTimeout(() => this.setState({ alertShow: 'none' }), 3000)
                 }
+                this.inUsername.value = ''
+                this.inPass.value = ''
             })
             .catch(err => console.log(err))
     }
@@ -53,4 +57,10 @@ class LoginPage extends React.Component {
     }
 }
 
-export default LoginPage;
+/**
+ * connect : untuk menghubungkan action atau reducer dengan sistem redux
+ * connect(param1, {..param2})
+ * param1: berisi fungsi untuk mengambil data dari reducer/store, diisi jika dibutuhkan
+ * ...param2 : berisi fungsi-fungsi action yang akan digunakan, diisi jika dibutuhkan
+ *  */
+export default connect(null, { authLogin })(LoginPage);
