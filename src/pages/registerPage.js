@@ -7,7 +7,9 @@ class RegisterPage extends React.Component {
         super(props);
         this.state = {
             dataUser: [],
-            selectedIdx: null
+            selectedIdx: null,
+            passwordType: 'password',
+            passShow: 'Show'
         }
     }
 
@@ -33,7 +35,34 @@ class RegisterPage extends React.Component {
         axios.post(URL_API + '/tb_user', {
             username, password, role
         })
-            .then(res => this.getDataUser()).catch(err => console.log(err))
+            .then(res => this.getDataUser())
+            .catch(err => console.log(err))
+    }
+
+    onBtSave = (id) => {
+        let username = this.newUsername.value
+        let password = this.newPassword.value
+        let role = this.newRole.value
+        // PATCH : memperbarui data pada kolom data yg dipilih
+        axios.patch(URL_API + `/tb_user/${id}`, { username, password, role })
+            .then(res => {
+                this.getDataUser()
+                this.setState({ selectedIdx: null })
+            })
+            .catch(err => console.log(err))
+        // PUT : mengganti data pada index/id data yang dituju
+        // axios.put(URL_API + `/tb_user/${id}`, { username })
+        //     .then(res => this.getDataUser()).catch(err => console.log(err))
+    }
+
+    onBtDelete = (id) => {
+        axios.delete(URL_API + `/tb_user/${id}`)
+            .then(res => {
+                this.getDataUser()
+            })
+            .catch(err => {
+                console.log(err)
+            })
     }
 
     printData = () => {
@@ -47,7 +76,7 @@ class RegisterPage extends React.Component {
                         <option value="admin">Admin</option>
                         <option value="user">User</option>
                     </select></th>
-                    <th><button type="button" className="btn btn-outline-warning" >Save</button>
+                    <th><button type="button" className="btn btn-outline-warning" onClick={() => this.onBtSave(item.id)}>Save</button>
                         <button type="button" className="btn btn-outline-danger" onClick={() => this.setState({ selectedIdx: null })}>Cancel</button></th>
                 </tr>
             } else {
@@ -56,7 +85,8 @@ class RegisterPage extends React.Component {
                     <td>{item.username}</td>
                     <td>{item.password}</td>
                     <td>{item.role}</td>
-                    <td><button type="button" className="btn btn-warning" onClick={() => this.setState({ selectedIdx: index })}>Edit</button><button type="button" className="btn btn-danger">Delete</button></td>
+                    <td><button type="button" className="btn btn-warning" onClick={() => this.setState({ selectedIdx: index })}>Edit</button>
+                        <button type="button" className="btn btn-danger" onClick={() => this.onBtDelete(item.id)}>Delete</button></td>
                 </tr>
             }
         })
@@ -64,6 +94,15 @@ class RegisterPage extends React.Component {
 
     onBtIdx = (idx) => {
         this.setState({ selectedIdx: idx })
+    }
+
+    onBtShowPass = () => {
+        let { passShow, passwordType } = this.state
+        if (passwordType == 'password') {
+            this.setState({ passwordType: 'text', passShow: 'Hidden' })
+        } else {
+            this.setState({ passwordType: 'password', passShow: 'Show' })
+        }
     }
 
     render() {
@@ -87,7 +126,14 @@ class RegisterPage extends React.Component {
                         <tr>
                             <th>#</th>
                             <th><input className="form-control" type="text" ref={elemen => this.inUsername = elemen} placeholder="Username" /></th>
-                            <th><input className="form-control" type="text" ref={elemen => this.inPassword = elemen} placeholder="Password" /></th>
+                            <th>
+                                <div className="input-group">
+                                    <input className="form-control" type={this.state.passwordType} ref={elemen => this.inPassword = elemen} placeholder="Password" />
+                                    <div className="input-group-append">
+                                        <div className="input-group-text" onClick={this.onBtShowPass}>{this.state.passShow}</div>
+                                    </div>
+                                </div>
+                            </th>
                             <th><select className="form-control" type="text" ref={elemen => this.inRole = elemen} placeholder="Password">
                                 <option value="admin">Admin</option>
                                 <option value="user">User</option>
