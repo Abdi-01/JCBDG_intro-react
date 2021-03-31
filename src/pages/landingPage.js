@@ -2,6 +2,8 @@ import React from 'react';
 import Card from '../components/card'
 import axios from 'axios';
 import { URL_API } from '../helper';
+import { getAlbum } from '../actions'
+import { connect } from 'react-redux'
 // Penulisan class component
 class LandingPage extends React.Component {
     // untuk menyimpan data state
@@ -33,7 +35,9 @@ class LandingPage extends React.Component {
                 // jika mendapat respon success
                 console.log("respon api get :", res.data)
                 // menyimpan data dari respon server ke dalam this.state
-                this.setState({ datAlbum: res.data })
+                // this.setState({ datAlbum: res.data })
+
+                this.props.getAlbum(res.data)
             })
             .catch((err) => {
                 // jika mendapat respon error
@@ -47,7 +51,7 @@ class LandingPage extends React.Component {
         let image = this.inputImage.value
         console.log(title, description, image)
 
-        axios.post(URL_API+'/tb_album', {
+        axios.post(URL_API + '/tb_album', {
             title, description, image
         })
             .then((res) => {
@@ -66,8 +70,8 @@ class LandingPage extends React.Component {
 
     // tempat membuat fungsi
     printCard = () => {
-        let { datAlbum } = this.state
-        return datAlbum.map((item, index) => {
+        let { dataAlbum } = this.props
+        return dataAlbum.map((item, index) => {
             return <Card title={item.title}
                 description={item.description} image={item.image} />
         })
@@ -114,4 +118,11 @@ class LandingPage extends React.Component {
     }
 }
 
-export default LandingPage;
+const mapStateToProps = (state) => {
+    console.log('cek data', state.albumReducer.dataAlbum)
+    return{
+        dataAlbum : state.albumReducer.dataAlbum
+    }
+}
+
+export default connect(mapStateToProps, { getAlbum })(LandingPage);
